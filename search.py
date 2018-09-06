@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -87,34 +87,41 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    #from game import Directions 
-
-    fringe = util.Stack() #Fringe for the nodes to be visited
-    startPoint = problem.getStartState() #Starting state
-    fringe.push((startPoint,[],[]))
-    while(not fringe.isEmpty()):
-        node,actions,visited = fringe.pop()
-        for coord,direction,value in problem.getSuccessors(node):
-            if(not coord in visited):
-                if problem.isGoalState(coord):
-                    return actions + [direction]
-                fringe.push((coord, actions+[direction],visited+[node]))
+    start = problem.getStartState()
+    explored = []
+    explored.append(start)
+    fringe = util.Stack()
+    state = (start, [])
+    fringe.push(state)
+    while not fringe.isEmpty():
+        state, actions = fringe.pop()
+        if problem.isGoalState(state):
+            return actions
+        explored.append(state)
+        for coord,direction,steps in problem.getSuccessors(state):
+            if (not coord in explored):
+                fringe.push((coord, actions + [direction]))
+    return actions
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    
-    fringe = util.Queue() #Fringe for the nodes to be visited
-    startPoint = problem.getStartState() #Starting state
-    fringe.push((startPoint,[],[]))
-    while(not fringe.isEmpty()):
-        node,actions,visited = fringe.pop()
-        for coord,direction,value in problem.getSuccessors(node):
-            if(not coord in visited):
-                if problem.isGoalState(coord):
-                    return actions + [direction]
-                fringe.push((coord, actions+[direction],visited+[node]))
+    start = problem.getStartState()
+    explored = []
+    explored.append(start)
+    fringe = util.Queue()
+    state = (start, [])
+    fringe.push(state)
+    while not fringe.isEmpty():
+        state, action = fringe.pop()
+        if problem.isGoalState(state):
+            return action
+        for coordinates,direction,steps in problem.getSuccessors(state):
+            if not coordinates in explored:
+                explored.append(coordinates)
+                fringe.push((coordinates, action + [direction]))
+    return action
     util.raiseNotDefined()
 
 
