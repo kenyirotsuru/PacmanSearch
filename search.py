@@ -128,17 +128,24 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    fringe = util.PriorityQueue() #Fringe for the nodes to be visited
-    startPoint = problem.getStartState() #Starting state
-    fringe.push((startPoint,[],[]),0)
-    while(not fringe.isEmpty()):
-        node,actions,visited = fringe.pop()
-        for coord,direction,value in problem.getSuccessors(node):
-            if(not coord in visited):
-                if problem.isGoalState(coord):
-                    return actions + [direction]
-                fringe.push((coord, actions+[direction],visited+[node]))
+    start = problem.getStartState()
+    explored = []
+    fringe = util.PriorityQueue()
+    fringe.push((start, []) ,0)
+    while not fringe.isEmpty():
+        state, actions = fringe.pop()
+        if problem.isGoalState(state):
+            return actions
+        if state not in explored:
+            successors = problem.getSuccessors(state)
+            for coordinates,directions,steps in successors:
+                if coordinates not in explored:
+                    newCost = actions + [directions]
+                    fringe.push((coordinates, actions + [directions]), problem.getCostOfActions(newCost))
+        explored.append(state)
     util.raiseNotDefined()
+
+
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
