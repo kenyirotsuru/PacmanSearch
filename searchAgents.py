@@ -304,7 +304,7 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        notVisited = state[1]
+        notVisited = list(state[1])
         if state[0] in self.corners:
             if state[0] in notVisited:
                 state[1].remove[state[0]]
@@ -337,11 +337,11 @@ class CornersProblem(search.SearchProblem):
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
-            cornersNotVisited = state[1]
+            cornersNotVisited = list(state[1])
             if not hitsWall:
                 nextPos = (nextx, nexty)
-                if nextPos in self.corners:
-                    cornersNotVisited.remove(nextState)
+                if nextPos in cornersNotVisited:
+                    cornersNotVisited.remove(nextPos)
                 successor = ((nextPos, cornersNotVisited), action, 1)
                 successors.append(successor)
 
