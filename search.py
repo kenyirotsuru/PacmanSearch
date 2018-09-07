@@ -98,7 +98,7 @@ def depthFirstSearch(problem):
         if problem.isGoalState(state):
             return actions
         explored.append(state)
-        for coord,direction,steps in problem.getSuccessors(state):
+        for coord,direction,cost in problem.getSuccessors(state):
             if (not coord in explored):
                 fringe.push((coord, actions + [direction]))
     return actions
@@ -117,7 +117,7 @@ def breadthFirstSearch(problem):
         state, action = fringe.pop()
         if problem.isGoalState(state):
             return action
-        for coordinates,direction,steps in problem.getSuccessors(state):
+        for coordinates,direction,cost in problem.getSuccessors(state):
             if not coordinates in explored:
                 explored.append(coordinates)
                 fringe.push((coordinates, action + [direction]))
@@ -138,7 +138,7 @@ def uniformCostSearch(problem):
             return actions
         if state not in explored:
             successors = problem.getSuccessors(state)
-            for coordinates,directions,steps in successors:
+            for coordinates,directions,cost in successors:
                 if coordinates not in explored:
                     newCost = actions + [directions]
                     fringe.push((coordinates, actions + [directions]), problem.getCostOfActions(newCost))
@@ -160,7 +160,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     explored = []
     fringe = util.PriorityQueue()
     fringe.push((start, []), nullHeuristic(start, problem))
-    nCost = 0
+    cost = 0
     while not fringe.isEmpty():
         state, actions = fringe.pop()
         if problem.isGoalState(state):
@@ -168,9 +168,9 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         if state not in explored:
             for coordinates,directions,steps in problem.getSuccessors(state):
                 if coordinates not in explored:
-                    nActions = actions + [directions]
-                    nCost = problem.getCostOfActions(nActions) + heuristic(coordinates, problem)
-                    fringe.push((coordinates, actions + [directions]), nCost)
+                    new_actions = actions + [directions]
+                    cost = problem.getCostOfActions(new_actions) + heuristic(coordinates, problem)
+                    fringe.push((coordinates, actions + [directions]), cost)
         explored.append(state)
     return actions
     util.raiseNotDefined()
