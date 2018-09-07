@@ -382,17 +382,18 @@ def cornersHeuristic(state, problem):
     node = state[0]
     cornersNotVisited = list(state[1])
     distance = []
-    sum = 0;
+    sum = 0
 
-    if len(cornersNotVisited) > 0:
-        while len(cornersNotVisited) > 0:
-            for corner in cornersNotVisited:
-                distance.append(util.manhattanDistance(node,corner))
-                sum += min(distance)
-            cornersNotVisited.pop()
-    else:
-        sum = 0
-
+    while len(cornersNotVisited) > 0:
+        distance = []
+        for corner in cornersNotVisited:
+            distance.append((util.manhattanDistance(node, corner), corner))
+        print(distance)
+        heuristic,node = min(distance)
+        print("Try: ",heuristic,node)
+        sum += heuristic
+        cornersNotVisited.remove(node)
+    print("Heuristic: ", sum)
     return sum # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
@@ -487,7 +488,14 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    furthest = 0
+    height = range(foodGrid.height)
+    width = range(foodGrid.width)
+    for y in height:
+        for x in width:
+            if (foodGrid[x][y] == 1) and (mazeDistance(position,(x,y),problem.startingGameState) > furthest):
+                furthest = mazeDistance(position,(x,y),problem.startingGameState)
+    return furthest
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -518,6 +526,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        return search.breadthFirstSearch(problem)
         util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -554,6 +563,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
+        return self.food[x][y]
         util.raiseNotDefined()
 
 def mazeDistance(point1, point2, gameState):
