@@ -28,7 +28,7 @@ class SearchProblem:
     """
 
     def getStartState(self):
-        """
+        """ 
         Returns the start state for the search problem.
         """
         util.raiseNotDefined()
