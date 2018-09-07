@@ -384,14 +384,16 @@ def cornersHeuristic(state, problem):
     distance = []
     sum = 0;
 
-    if len(cornersNotVisited) != 0:
+    if len(cornersNotVisited) > 0:
         while len(cornersNotVisited) > 0:
-            corner = cornersNotVisited.pop()
-            distance.append(util.manhattanDistance(node, corner))
+            for corner in cornersNotVisited:
+                distance.append(util.manhattanDistance(node,corner))
+                sum += min(distance)
+            cornersNotVisited.pop()
     else:
-        distance.append(0)
+        sum = 0
 
-    return min(distance) # Default to trivial solution
+    return sum # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
