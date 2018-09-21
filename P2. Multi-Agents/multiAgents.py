@@ -236,54 +236,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-<<<<<<< HEAD
-        def maxLevel(gameState,depth,alpha, beta):
-            currDepth = depth + 1
-            if gameState.isWin() or gameState.isLose() or currDepth==self.depth:   #Terminal Test
-                return self.evaluationFunction(gameState)
-            maxvalue = -999999
-            actions = gameState.getLegalActions(0)
-            alpha1 = alpha
-            for action in actions:
-                successor= gameState.generateSuccessor(0,action)
-                maxvalue = max (maxvalue,minLevel(successor,currDepth,1,alpha1,beta))
-                if maxvalue > beta:
-                    return maxvalue
-                alpha1 = max(alpha1,maxvalue)
-            return maxvalue
-
-        #For all ghosts.
-        def minLevel(gameState,depth,agentIndex,alpha,beta):
-            minvalue = 999999
-            if gameState.isWin() or gameState.isLose():   #Terminal Test
-                return self.evaluationFunction(gameState)
-            actions = gameState.getLegalActions(agentIndex)
-            beta1 = beta
-            for action in actions:
-                successor= gameState.generateSuccessor(agentIndex,action)
-                if agentIndex == (gameState.getNumAgents()-1):
-                    minvalue = min (minvalue,maxLevel(successor,depth,alpha,beta1))
-                    if minvalue < alpha:
-                        return minvalue
-                    beta1 = min(beta1,minvalue)
-                else:
-                    minvalue = min(minvalue,minLevel(successor,depth,agentIndex+1,alpha,beta1))
-                    if minvalue < alpha:
-                        return minvalue
-                    beta1 = min(beta1,minvalue)
-            return minvalue
-
-        # Alpha-Beta Pruning
-        actions = gameState.getLegalActions(0)
-        currentScore = -999999
-        returnAction = ''
-        alpha = -999999
-        beta = 999999
-        for action in actions:
-            nextState = gameState.generateSuccessor(0,action)
-            # Next level is a min level. Hence calling min for successors of the root.
-            score = minLevel(nextState,0,1,alpha,beta)
-=======
         def maxValue(gameState,depth,alpha,beta):
             currDepth = depth + 1
             if gameState.isWin() or gameState.isLose() or currDepth==self.depth:   #Terminal Test
@@ -328,7 +280,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             nextState = gameState.generateSuccessor(0,action)
             # Next level is a min level. Hence calling min for successors of the root.
             score = minValue(1,nextState,0,alpha,beta)
->>>>>>> 5572c90cac1489f028dbe52080eb1a9ec4848aa1
             # Choosing the action which is Maximum of the successors.
             if score > currentScore:
                 returnAction = action
@@ -338,44 +289,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 return returnAction
             alpha = max(alpha,score)
         return returnAction
-<<<<<<< HEAD
-
-
-        # numAgent = gameState.getNumAgents()
-        # ActionScore = []
-        #
-        # def _rmStop(List):
-        #   return [x for x in List if x != 'Stop']
-        #
-        # def alphaBeta(gameState, iterCount, alpha, beta):
-        #   if iterCount >= self.depth*numAgent or gameState.isWin() or gameState.isLose():
-        #     return self.evaluationFunction(s)
-        #   if iterCount%numAgent != 0: #Ghost min
-        #     result = float("inf")
-        #     for action in gameState.getLegalActions(iterCount%numAgent):
-        #       sdot = gameState.generateSuccessor(iterCount%numAgent,action)
-        #       result = min(result, alphaBeta(sdot, iterCount+1, alpha, beta))
-        #       beta = min(beta, result)
-        #       if beta < alpha:
-        #         break
-        #     return result
-        #   else: # Pacman Max
-        #     result = float("-inf")
-        #     for a in _rmStop(gameState.getLegalActions(iterCount%numAgent)):
-        #       sdot = gameState.generateSuccessor(iterCount%numAgent,a)
-        #       result = max(result, alphaBeta(sdot, iterCount+1, alpha, beta))
-        #       alpha = max(alpha, result)
-        #       if iterCount == 0:
-        #         ActionScore.append(result)
-        #       if beta < alpha:
-        #         break
-        #     return result
-        #
-        # result = alphaBeta(gameState, 0, float("-inf"), float("inf"))
-        # return _rmStop(gameState.getLegalActions(0))[ActionScore.index(max(ActionScore))]
-        # util.raiseNotDefined()
-=======
->>>>>>> 5572c90cac1489f028dbe52080eb1a9ec4848aa1
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
