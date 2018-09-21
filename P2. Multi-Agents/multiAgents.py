@@ -77,7 +77,6 @@ class ReflexAgent(Agent):
         "*** YOUR CODE HERE ***"
 
         foodList = newFood.asList()
-        print(foodList)
         distance = [float("inf")] #list of distances to all food pellets
         for food in foodList:
             distance.append(util.manhattanDistance(newPos, food))
@@ -237,59 +236,59 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        def maxValue(agent, depth, gameState, alpha, beta):  # maxValue function
-            v = -(float("inf"))
-            legalActions =  gameState.getLegalActions(agent)
-            for succesor in legalActions:
-                v = max(v, abPruning(1, depth, gameState.generateSuccessor(agent, succesor), alpha, beta)) #(1 to call for the ghost)
+        def maxValue(gameState,depth,alpha,beta):
+            currDepth = depth + 1
+            if gameState.isWin() or gameState.isLose() or currDepth==self.depth:   #Terminal Test
+                return self.evaluationFunction(gameState)
+            v = float("-inf")
+            actions = gameState.getLegalActions(0)
+            for action in actions:
+                successor= gameState.generateSuccessor(0,action)
+                v = max(v,minValue(1,successor,currDepth,alpha,beta))
                 if v > beta:
                     return v
-                alpha = max(alpha, v)
+                alpha = max(alpha,v)
             return v
 
-        def minValue(agent, depth, gameState, alpha, beta):  # minValue function
+        #For all ghosts.
+        def minValue(agent,gameState,depth,alpha,beta):
             v = float("inf")
-            ##### Validate next agents (ghosts)######
-            nextAgent = agent + 1
-            numberOfAgents = gameState.getNumAgents()
-            if numberOfAgents == nextAgent:
-                nextAgent = 0
-            if nextAgent == 0:
-                depth += 1
-            #########################################
-            legalActions =  gameState.getLegalActions(agent)
-            for succesor in legalActions:
-                v = min(v, abPruning(nextAgent, depth, gameState.generateSuccessor(agent, succesor), alpha, beta))
-                if v < alpha:
-                    return v
-                beta = min(beta, v)
+            if gameState.isWin() or gameState.isLose():   #Terminal Test
+                return self.evaluationFunction(gameState)
+            actions = gameState.getLegalActions(agent)
+            for action in actions:
+                successor= gameState.generateSuccessor(agent,action)
+                if agent == (gameState.getNumAgents()-1):
+                    v = min (v,maxValue(successor,depth,alpha,beta))
+                    if v < alpha:
+                        return v
+                    beta = min(beta,v)
+                else:
+                    v = min(v,minValue(agent+1,successor,depth,alpha,beta))
+                    if v < alpha:
+                        return v
+                    beta = min(beta,v)
             return v
 
-            def abPruning(agent, depth, gameState, alpha, beta):
-                if gameState.isLose() or gameState.isWin() or depth == self.depth:  # if the state is a terminal state: return the state’s utility
-                    return self.evaluationFunction(gameState)
-                #If the agent is pacman, then we max
-                if agent == 0:  # maximize for pacman
-                    return maxValue(agent, depth, gameState, alpha, beta)
-                #If the  agent is a ghost, then we minimize
-                else:
-                    return minValue(agent, depth, gameState, alpha, beta)
-
-            utility = -(float("inf"))
-            alpha = -(float("inf"))
-            beta = float("inf")
-            legalActions =  gameState.getLegalActions(0)
-            action = Directions.EAST
-            for agentState in legalActions:
-                ghostValue = abPruning(1, 0, gameState.generateSuccessor(0, agentState), alpha, beta)
-                if ghostValue > utility:
-                    utility = ghostValue
-                    action = agentState
-                if utility > beta:
-                    return utility
-                alpha = max(alpha, utility)
-
-            return action
+        # Alpha-Beta Pruning
+        actions = gameState.getLegalActions(0)
+        currentScore = float("-inf")
+        returnAction = ''
+        alpha = float("-inf")
+        beta = float("inf")
+        for action in actions:
+            nextState = gameState.generateSuccessor(0,action)
+            # Next level is a min level. Hence calling min for successors of the root.
+            score = minValue(1,nextState,0,alpha,beta)
+            # Choosing the action which is Maximum of the successors.
+            if score > currentScore:
+                returnAction = action
+                currentScore = score
+            # Updating alpha value at root.
+            if score > beta:
+                return returnAction
+            alpha = max(alpha,score)
+        return returnAction
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
