@@ -73,15 +73,12 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        print("New Position:", newPos)
         "*** YOUR CODE HERE ***"
 
         foodList = newFood.asList()
-        distance = [float("inf")] #list of distances to all food pellets
+        minDistance = float("inf") #list of distances to all food pellets
         for food in foodList:
-            distance.append(util.manhattanDistance(newPos, food))
-
-        minDistance = min(distance) #Chooses the closest food pellet
+            minDistance = min(minDistance, util.manhattanDistance(newPos, food))
 
         ghostDistances = 1
         ghostsClose = 0
@@ -94,7 +91,7 @@ class ReflexAgent(Agent):
 
         minDistanceNormalized = (1 / float(minDistance)) #Normalized so we have a value between 0-1
         ghostDistancesNormalized = (1 / float(ghostDistances)) #Normalized so we have a value between 0-1
-        evaluation = successorGameState.getScore() + minDistanceNormalized + ghostDistancesNormalized - 2*ghostsClose
+        evaluation = successorGameState.getScore() + minDistanceNormalized + ghostDistancesNormalized - ghostsClose
         return evaluation
 
 def scoreEvaluationFunction(currentGameState):
@@ -338,21 +335,33 @@ def betterEvaluationFunction(currentGameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    Returns the utilty of choosing an action from the current game state.
+
+    This evaluation function uses the distance to the closest pellet and normalizes
+    it so that the smaller the distance, the better the score
+
+    It also normalizes the total sum of ghost distances, normalizes it to have
+    a similar weigth as the distance to the closest pellet, and substracts it
+    to the score.
+
+    The function also substracts the amount of power capsules left, and the amount
+    of food pellets leftself.
+
+    Finally, if a ghost is getting too close, the function also substracts a value
+    to the score.
+
     """
     "*** YOUR CODE HERE ***"
     #First we calculate distances to food and ghosts and amount of power capsules on the board
     currentPos = currentGameState.getPacmanPosition()
     food = currentGameState.getFood()
     foodList = food.asList()
-    minFoodDistance = -1
+    minFoodDistance = float("inf")
     capsules = len(currentGameState.getCapsules())
     ghostsDistances = 1
     ghostsProximity = 0
     for food in foodList:
-        distance = util.manhattanDistance(currentPos, food)
-        if minFoodDistance >= distance or minFoodDistance == -1:
-            minFoodDistance = distance
+        minFoodDistance = min(minFoodDistance,util.manhattanDistance(currentPos, food))
     for ghosts in currentGameState.getGhostPositions():
         distance = util.manhattanDistance(currentPos, ghosts)
         ghostsDistances += distance
@@ -361,9 +370,9 @@ def betterEvaluationFunction(currentGameState):
 
     #Values to be returned
     score = currentGameState.getScore()
-    minFoodDistanceNormalized = (1 / float(minFoodDistance)) #Normalized so we have a value between 0-1
+    minFoodDistanceNormalized = (2 / float(minFoodDistance)) #Normalized so we have a value between 0-2
     ghostDistancesNormalized = (1 / float(ghostsDistances)) #Normalized so we have a value between 0-1
-    bettereEvaluation = score + minFoodDistanceNormalized - ghostDistancesNormalized - ghostsProximity - capsules
+    betterEvaluation = score + minFoodDistanceNormalized - ghostDistancesNormalized - ghostsProximity - capsules - len(foodList)
     return  betterEvaluation
 
 # Abbreviation
