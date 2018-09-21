@@ -153,74 +153,40 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        # def maxValue(agent, depth, gameState):  # maxValue function
-        #     if depth > self.depth or gameState.isWin() or gameState.isLose():
-        #         return self.evaluationFunction(gameState)
-        #     v = -(float("inf"))
-        #     legalActions =  gameState.getLegalActions(agent)
-        #     for succesor in legalActions:
-        #         v = max(v, minValue(1, depth, gameState.generateSuccessor(agent, succesor))) #(1 to call for the ghost)
-        #     return v
-        #
-        # def minValue(agent, depth, gameState):  # minValue function
-        #     if depth > self.depth or gameState.isLose() or gameState.isWin():
-        #         return self.evaluationFunction(gameState)
-        #     v = float("inf")
-        #     nextAgent = agent + 1
-        #     numberOfAgents = gameState.getNumAgents()
-        #     legalActions =  gameState.getLegalActions(agent)
-        #     if numberOfAgents == nextAgent:
-        #         nextAgent = 0
-        #     if nextAgent == 0:
-        #         depth += 1
-        #         if depth <= self.depth:
-        #             for succesor in legalActions:
-        #                 v = min(v, maxValue(nextAgent, depth, gameState.generateSuccessor(agent, succesor)))
-        #     elif nextAgent < numberOfAgents:
-        #         for succesor in legalActions:
-        #             v = min(v, minValue(nextAgent, depth, gameState.generateSuccessor(agent, succesor)))
-        #     return v
-        #
-        # utility = -(float("inf"))
-        # legalActions =  gameState.getLegalActions(0)
-        # action = Directions.STOP
-        # for agentState in legalActions:
-        #     ghostValue = maxValue(0, 1, gameState.generateSuccessor(0, agentState))
-        #     if ghostValue > utility:
-        #         utility = ghostValue
-        #         action = agentState
-        # return action
-
-        def minimax(agent, depth, gameState):
-            numberOfAgents = gameState.getNumAgents()
-            if gameState.isLose() or gameState.isWin() or depth == self.depth:  # if the state is a terminal state: return the state’s utility
+        def maxValue(gameState,depth):       #Pacman
+            depth += 1
+            v = float("-inf")
+            actions = gameState.getLegalActions(0)
+            if gameState.isWin() or gameState.isLose() or depth == self.depth:   # if the state is a terminal state: return the state’s utility
                 return self.evaluationFunction(gameState)
-            #If the agent is pacman, then we max
-            if agent == 0:
-                cost = []
-                for action in gameState.getLegalActions(agent):
-                    cost.append(minimax(1, depth, gameState.generateSuccessor(agent, action)))
-                return max(cost)
-            #If the  agent is a ghost, then we minimize
-            else:
-                nextAgent = agent + 1  # calculate the next agent to see if its a ghost or pacman and increase depth accordingly.
-                if numberOfAgents == nextAgent:
-                    nextAgent = 0 #Reset nextAgent so we know the next one to move is pacman
-                if nextAgent == 0: #Increase depth of the game
-                   depth += 1
-                cost = []
-                for action in gameState.getLegalActions(agent):
-                    cost.append(minimax(nextAgent, depth, gameState.generateSuccessor(agent, action)))
-                return min(cost)
+            for action in actions:
+                successor= gameState.generateSuccessor(0,action)
+                v = max(v,minValue(1,successor,depth))
+            return v
 
-        maxValue = -(float("inf"))
+        def minValue(agent,gameState,depth):        #Ghosts
+            v = float("inf")
+            actions = gameState.getLegalActions(agent)
+            if gameState.isWin() or gameState.isLose() or depth == self.depth:   # if the state is a terminal state: return the state’s utility
+                return self.evaluationFunction(gameState)
+            for action in actions:
+                successor= gameState.generateSuccessor(agent,action)
+                nextAgent = agent + 1
+                if nextAgent == gameState.getNumAgents():   #Reset nextAgent so we know the next one to move is pacman
+                    nextAgent = 0
+                    v = min(v,maxValue(successor,depth))
+                else:
+                    v = min(v,minValue(nextAgent,successor,depth))
+            return v
+
         action = Directions.STOP
-        actions = gameState.getLegalActions()
-        for agentState in actions:
-            utility = minimax(1, 0, gameState.generateSuccessor(0, agentState))
-            if utility > maxValue:
-                maxValue = utility
+        score = float("-inf")
+        for agentState in gameState.getLegalActions(0):
+            nextState = gameState.generateSuccessor(0,agentState)
+            utility = minValue(1,nextState,0)
+            if utility > score:
                 action = agentState
+                score = utility
         return action
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -345,7 +311,7 @@ def betterEvaluationFunction(currentGameState):
     to the score.
 
     The function also substracts the amount of power capsules left, and the amount
-    of food pellets leftself.
+    of food pellets left.
 
     Finally, if a ghost is getting too close, the function also substracts a value
     to the score.
