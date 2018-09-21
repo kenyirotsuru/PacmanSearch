@@ -341,7 +341,30 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #First we calculate distances to food and ghosts and amount of power capsules on the board
+    currentPos = currentGameState.getPacmanPosition()
+    food = currentGameState.getFood()
+    foodList = food.asList()
+    minFoodDistance = -1
+    capsules = len(currentGameState.getCapsules())
+    ghostsDistances = 1
+    ghostsProximity = 0
+    for food in foodList:
+        distance = util.manhattanDistance(currentPos, food)
+        if minFoodDistance >= distance or minFoodDistance == -1:
+            minFoodDistance = distance
+    for ghosts in currentGameState.getGhostPositions():
+        distance = util.manhattanDistance(currentPos, ghosts)
+        ghostsDistances += distance
+        if distance <= 1:
+            ghostsProximity += 1
+
+    #Values to be returned
+    score = currentGameState.getScore()
+    minFoodDistanceNormalized = (1 / float(minFoodDistance)) #Normalized so we have a value between 0-1
+    ghostDistancesNormalized = (1 / float(ghostsDistances)) #Normalized so we have a value between 0-1
+    evaluation = score + minFoodDistanceNormalized - ghostDistancesNormalized - ghostsProximity - capsules
+    return  evaluation
 
 # Abbreviation
 better = betterEvaluationFunction
