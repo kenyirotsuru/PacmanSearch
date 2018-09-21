@@ -201,6 +201,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         # return action
 
         def minimax(agent, depth, gameState):
+<<<<<<< HEAD
             numberOfAgents = gameState.getNumAgents()
             if gameState.isLose() or gameState.isWin() or depth == self.depth:  # if the state is a terminal state: return the state’s utility
                 return self.evaluationFunction(gameState)
@@ -210,6 +211,15 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 for action in gameState.getLegalActions(agent):
                     cost.append(minimax(1, depth, gameState.generateSuccessor(agent, action)))
                 return max(cost)
+=======
+            actions = gameState.getLegalActions(agent)
+            numberOfAgents = gameState.getNumAgents()
+            if gameState.isLose() or gameState.isWin() or depth == self.depth:  # return the utility in case the defined depth is reached or the game is won/lost.
+                return self.evaluationFunction(gameState)
+            #If the agent is pacman, then we max
+            if agent == 0:  # maximize for pacman
+                return max(minimax(1, depth, gameState.generateSuccessor(agent, succesor)) for succesor in actions)
+>>>>>>> a4ece5dbafa60e8be7ff683a43e2f522279d49c7
             #If the  agent is a ghost, then we minimize
             else:
                 nextAgent = agent + 1  # calculate the next agent and increase depth accordingly.
@@ -217,6 +227,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                     nextAgent = 0 #Reset nextAgent so we know the next one to move is pacman
                 if nextAgent == 0: #Increase depth of the game
                    depth += 1
+<<<<<<< HEAD
                 cost = []
                 for action in gameState.getLegalActions(agent):
                     cost.append(minimax(nextAgent, depth, gameState.generateSuccessor(agent, action)))
@@ -229,6 +240,18 @@ class MinimaxAgent(MultiAgentSearchAgent):
             utility = minimax(1, 0, gameState.generateSuccessor(0, agentState))
             if utility > maxValue:
                 maxValue = utility
+=======
+                return min(minimax(nextAgent, depth, gameState.generateSuccessor(agent, newState)) for newState in actions)
+
+        """Performing maximize action for the root node i.e. pacman"""
+        maximum = -(float("inf"))
+        action = Directions.STOP
+        legalActions = gameState.getLegalActions()
+        for agentState in legalActions:
+            utility = minimax(1, 0, gameState.generateSuccessor(0, agentState))
+            if utility > maximum or maximum == -(float("inf")):
+                maximum = utility
+>>>>>>> a4ece5dbafa60e8be7ff683a43e2f522279d49c7
                 action = agentState
         return action
 
