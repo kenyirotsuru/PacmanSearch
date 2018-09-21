@@ -93,11 +93,6 @@ class ReflexAgent(Agent):
             if distanceToGhost <= 1:
                 ghostsClose += 1
 
-#        print("successorGameState.getScore: ", successorGameState.getScore())
-#        print("min food distance: ", str(1 / float(minDistance)))
-#        print("Distances to ghosts: ", str(1 / float(ghostDistances)))
-#        print("ghostsClose to ghosts: ", str(ghostsClose))
-#        print(successorGameState.getScore() + (1 / float(minDistance)) - (1 / float(ghostDistances)) - ghostsClose)
         minDistanceNormalized = (1 / float(minDistance)) #Normalized so we have a value between 0-1
         ghostDistancesNormalized = (1 / float(ghostDistances)) #Normalized so we have a value between 0-1
         evaluation = successorGameState.getScore() + minDistanceNormalized + ghostDistancesNormalized - 2*ghostsClose
@@ -179,7 +174,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
                     nextAgent = 0 #Reset nextAgent so we know the next one to move is pacman
                 if nextAgent == 0: #Increase depth of the game
                    depth += 1
-<<<<<<< HEAD
                 cost = []
                 for action in gameState.getLegalActions(agent):
                     cost.append(minimax(nextAgent, depth, gameState.generateSuccessor(agent, action)))
@@ -192,17 +186,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
             utility = minimax(1, 0, gameState.generateSuccessor(0, agentState))
             if utility > maxValue:
                 maxValue = utility
-=======
-                return min(minimax(nextAgent, depth, gameState.generateSuccessor(agent, newState)) for newState in actions)
-
-        maximum = -(float("inf"))
-        action = Directions.STOP
-        legalActions = gameState.getLegalActions()
-        for agentState in legalActions:
-            utility = minimax(1, 0, gameState.generateSuccessor(0, agentState))
-            if utility > maximum or maximum == -(float("inf")):
-                maximum = utility
->>>>>>> a4ece5dbafa60e8be7ff683a43e2f522279d49c7
                 action = agentState
         return action
 
