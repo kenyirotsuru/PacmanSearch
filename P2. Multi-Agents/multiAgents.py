@@ -153,44 +153,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        # def maxValue(agent, depth, gameState):  # maxValue function
-        #     if depth > self.depth or gameState.isWin() or gameState.isLose():
-        #         return self.evaluationFunction(gameState)
-        #     v = -(float("inf"))
-        #     legalActions =  gameState.getLegalActions(agent)
-        #     for succesor in legalActions:
-        #         v = max(v, minValue(1, depth, gameState.generateSuccessor(agent, succesor))) #(1 to call for the ghost)
-        #     return v
-        #
-        # def minValue(agent, depth, gameState):  # minValue function
-        #     if depth > self.depth or gameState.isLose() or gameState.isWin():
-        #         return self.evaluationFunction(gameState)
-        #     v = float("inf")
-        #     nextAgent = agent + 1
-        #     numberOfAgents = gameState.getNumAgents()
-        #     legalActions =  gameState.getLegalActions(agent)
-        #     if numberOfAgents == nextAgent:
-        #         nextAgent = 0
-        #     if nextAgent == 0:
-        #         depth += 1
-        #         if depth <= self.depth:
-        #             for succesor in legalActions:
-        #                 v = min(v, maxValue(nextAgent, depth, gameState.generateSuccessor(agent, succesor)))
-        #     elif nextAgent < numberOfAgents:
-        #         for succesor in legalActions:
-        #             v = min(v, minValue(nextAgent, depth, gameState.generateSuccessor(agent, succesor)))
-        #     return v
-        #
-        # utility = -(float("inf"))
-        # legalActions =  gameState.getLegalActions(0)
-        # action = Directions.STOP
-        # for agentState in legalActions:
-        #     ghostValue = maxValue(0, 1, gameState.generateSuccessor(0, agentState))
-        #     if ghostValue > utility:
-        #         utility = ghostValue
-        #         action = agentState
-        # return action
-
         def minimax(agent, depth, gameState):
             numberOfAgents = gameState.getNumAgents()
             if gameState.isLose() or gameState.isWin() or depth == self.depth:  # if the state is a terminal state: return the state’s utility
