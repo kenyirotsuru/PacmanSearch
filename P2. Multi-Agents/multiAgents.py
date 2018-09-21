@@ -203,7 +203,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             depth += 1
             v = float("-inf")
             actions = gameState.getLegalActions(0)
-            if gameState.isWin() or gameState.isLose() or depth == self.depth:   #Terminal Test
+            if gameState.isWin() or gameState.isLose() or depth == self.depth:   #Terminal State Test
                 return self.evaluationFunction(gameState)
             for action in actions:
                 successor= gameState.generateSuccessor(0,action)
@@ -217,7 +217,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         def minValue(agent,gameState,depth,alpha,beta):
             v = float("inf")
             actions = gameState.getLegalActions(agent)
-            if gameState.isWin() or gameState.isLose() or depth == self.depth:   #Terminal Test
+            if gameState.isWin() or gameState.isLose() or depth == self.depth:   #Terminal State Test
                 return self.evaluationFunction(gameState)
             for action in actions:
                 successor= gameState.generateSuccessor(agent,action)
