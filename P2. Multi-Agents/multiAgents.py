@@ -237,7 +237,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             depth += 1
             v = float("-inf")
             actions = gameState.getLegalActions(0)
-            if gameState.isWin() or gameState.isLose() or depth == self.depth:   #Terminal Test
+            if gameState.isWin() or gameState.isLose() or depth == self.depth:   #Terminal State Test
                 return self.evaluationFunction(gameState)
             for action in actions:
                 successor= gameState.generateSuccessor(0,action)
@@ -251,7 +251,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         def minValue(agent,gameState,depth,alpha,beta):
             v = float("inf")
             actions = gameState.getLegalActions(agent)
-            if gameState.isWin() or gameState.isLose() or depth == self.depth:   #Terminal Test
+            if gameState.isWin() or gameState.isLose() or depth == self.depth:   #Terminal State Test
                 return self.evaluationFunction(gameState)
             for action in actions:
                 successor= gameState.generateSuccessor(agent,action)
@@ -345,7 +345,7 @@ def betterEvaluationFunction(currentGameState):
     to the score.
 
     The function also substracts the amount of power capsules left, and the amount
-    of food pellets leftself.
+    of food pellets left.
 
     Finally, if a ghost is getting too close, the function also substracts a value
     to the score.
