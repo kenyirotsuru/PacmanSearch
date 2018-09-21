@@ -363,8 +363,8 @@ def betterEvaluationFunction(currentGameState):
     score = currentGameState.getScore()
     minFoodDistanceNormalized = (1 / float(minFoodDistance)) #Normalized so we have a value between 0-1
     ghostDistancesNormalized = (1 / float(ghostsDistances)) #Normalized so we have a value between 0-1
-    evaluation = score + minFoodDistanceNormalized - ghostDistancesNormalized - ghostsProximity - capsules
-    return  evaluation
+    bettereEvaluation = score + minFoodDistanceNormalized - ghostDistancesNormalized - ghostsProximity - capsules
+    return  betterEvaluation
 
 # Abbreviation
 better = betterEvaluationFunction
