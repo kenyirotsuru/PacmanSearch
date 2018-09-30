@@ -92,6 +92,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             qValue += probs * (self.mdp.getReward(state, action, newState) + self.discount*self.getValue(newState))
         return qValue
 
+
     def computeActionFromValues(self, state):
         """
           The policy is the best action in the given state
