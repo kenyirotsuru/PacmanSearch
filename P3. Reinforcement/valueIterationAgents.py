@@ -89,9 +89,14 @@ class ValueIterationAgent(ValueEstimationAgent):
         "*** YOUR CODE HERE ***"
         qValue = 0
         for (newState, probs) in self.mdp.getTransitionStatesAndProbs(state, action):
+<<<<<<< HEAD
             qValue += probs * (self.mdp.getReward(state, action, newState)+self.discount*self.getValue(newState))
         return qValue
         util.raiseNotDefined()
+=======
+            qValue += probs * (self.mdp.getReward(state, action, newState) + self.discount*self.getValue(newState))
+        return qValue
+>>>>>>> 3970a186f9aaf4ba3b541c334aea0c9ed1785fd1
 
     def computeActionFromValues(self, state):
         """
