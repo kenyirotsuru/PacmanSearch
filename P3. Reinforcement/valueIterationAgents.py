@@ -65,13 +65,13 @@ class ValueIterationAgent(ValueEstimationAgent):
         for i in range (self.iterations):
             prevValues=self.values.copy()
             for state in self.mdp.getStates():
-                self.values[state] = -float('inf')
+                self.values[state] = float('-inf')
                 for action in  self.mdp.getPossibleActions(state):
                     value=0
                     for (newState, probs) in self.mdp.getTransitionStatesAndProbs(state,action):
                         value += probs * (self.mdp.getReward(state, action, newState) + self.discount*prevValues[newState])
                     self.values[state] = max(self.values[state], value)
-                if self.values[state] == -float('inf'):
+                if self.values[state] == float('-inf'):
                     self.values[state] = 0.0
 
     def getValue(self, state):
@@ -102,7 +102,7 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        maxQ = float("-inf")
+        maxQ = float('-inf')
         action = None
         actions = self.mdp.getPossibleActions(state)
         for a in actions:
