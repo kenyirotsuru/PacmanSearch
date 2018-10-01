@@ -152,7 +152,14 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
-        "*** YOUR CODE HERE ***"
+        for k in range(self.iterations):
+            state = self.mdp.getStates()[k % len(self.mdp.getStates())]
+            best = self.computeActionFromValues(state)
+            if best is None:
+                v = 0
+            else:
+                v = self.computeQValueFromValues(state, best)
+            self.values[state] = v
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
@@ -171,5 +178,13 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         self.theta = theta
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
+    def computeQValues(self, state):
+        # Returns a counter containing all qValues from a given state
+        qValues = util.Counter()  # A counter holding (action, qValue) pairs
+        for action in self.mdp.getPossibleActions(state):
+            # Putting the calculated Q value for the given action into my counter
+            qValues[action] = self.computeQValueFromValues(state, action)
+        return qValues
+        
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
