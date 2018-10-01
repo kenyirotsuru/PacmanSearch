@@ -185,6 +185,40 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
             # Putting the calculated Q value for the given action into my counter
             qValues[action] = self.computeQValueFromValues(state, action)
         return qValues
-        
+
     def runValueIteration(self):
-        "*** YOUR CODE HERE ***"
+        allStates = self.mdp.getStates()
+        predecessors = dict()
+        for state in allStates:
+            predecessors[state]=set()
+        for state in allStates:
+            allactions=self.mdp.getPossibleActions(state)
+            for a in allactions:
+                possibleNextStates = self.mdp.getTransitionStatesAndProbs(state, a)
+                for nextState,pred in possibleNextStates:
+                    if pred>0:
+                        predecessors[nextState].add(state)
+        pq = util.PriorityQueue()
+        for state in allStates:
+
+            stateQValues = self.computeQValues(state)
+
+            if len(stateQValues) > 0:
+                maxQValue = stateQValues[stateQValues.argMax()]
+                diff = abs(self.values[state] - maxQValue)
+                pq.push(state, -diff)
+        for i in range(self.iterations):
+            if pq.isEmpty():
+                return;
+            state = pq.pop()
+            stateQValues = self.computeQValues(state)
+            maxQValue = stateQValues[stateQValues.argMax()]
+            self.values[state] = maxQValue
+            for p in predecessors[state]:
+
+                pQValues = self.computeQValues(p)
+                maxQValue = pQValues[pQValues.argMax()]
+                diff = abs(self.values[p] - maxQValue)
+
+                if diff > self.theta:
+                    pq.update(p, -diff)
