@@ -103,16 +103,11 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        maxQ = float('-inf')
-        action = None
         actions = self.mdp.getPossibleActions(state)
+        qValues = util.Counter()
         for a in actions:
-            qValue = self.getQValue(state, a)
-            if qValue >= maxQ:
-                action = a
-                maxQ = qValue
-        return action
-        util.raiseNotDefined()
+            qValues[a] = self.getQValue(state, a)
+        return qValues.argMax()
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
@@ -152,14 +147,16 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
-        for k in range(self.iterations):
-            state = self.mdp.getStates()[k % len(self.mdp.getStates())]
-            best = self.computeActionFromValues(state)
-            if best is None:
+        for i in range(self.iterations):
+            state = self.mdp.getStates()[i % len(self.mdp.getStates())]
+            action = self.computeActionFromValues(state)
+            if action is None:
                 v = 0
             else:
-                v = self.computeQValueFromValues(state, best)
-            self.values[state] = v
+                v = 0
+                for (newState, probs) in self.mdp.getTransitionStatesAndProbs(state, action):
+                    v += probs * (self.mdp.getReward(state, action, newState) + self.discount*self.getValue(newState))
+                self.values[state] = v
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
@@ -178,47 +175,40 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         self.theta = theta
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
-    def computeQValues(self, state):
-        # Returns a counter containing all qValues from a given state
-        qValues = util.Counter()  # A counter holding (action, qValue) pairs
-        for action in self.mdp.getPossibleActions(state):
-            # Putting the calculated Q value for the given action into my counter
-            qValues[action] = self.computeQValueFromValues(state, action)
-        return qValues
-
     def runValueIteration(self):
-        allStates = self.mdp.getStates()
+
+        states = self.mdp.getStates()
         predecessors = dict()
-        for state in allStates:
-            predecessors[state]=set()
-        for state in allStates:
-            allactions=self.mdp.getPossibleActions(state)
-            for a in allactions:
-                possibleNextStates = self.mdp.getTransitionStatesAndProbs(state, a)
-                for nextState,pred in possibleNextStates:
-                    if pred>0:
-                        predecessors[nextState].add(state)
-        pq = util.PriorityQueue()
-        for state in allStates:
+        for s in states:
+            predecessors[s] = []
+        for s in states:
+            actions = self.mdp.getPossibleActions(s)
+            for a in actions:
+                for newState, probs in self.mdp.getTransitionStatesAndProbs(s, a):
+                    if probs > 0:
+                        predecessors[newState].append(s)
 
-            stateQValues = self.computeQValues(state)
+        priorityQueue = util.PriorityQueue()
+        for s in states:
+            qValues = util.Counter()
+            for a in self.mdp.getPossibleActions(s):
+                qValues[a] = self.computeQValueFromValues(s, a)
+            diff = abs(self.values[s] - qValues[qValues.argMax()])
+            priorityQueue.push(s, -diff)
 
-            if len(stateQValues) > 0:
-                maxQValue = stateQValues[stateQValues.argMax()]
-                diff = abs(self.values[state] - maxQValue)
-                pq.push(state, -diff)
         for i in range(self.iterations):
-            if pq.isEmpty():
+            if priorityQueue.isEmpty():
                 return;
-            state = pq.pop()
-            stateQValues = self.computeQValues(state)
-            maxQValue = stateQValues[stateQValues.argMax()]
-            self.values[state] = maxQValue
-            for p in predecessors[state]:
+            s = priorityQueue.pop()
+            qValues = util.Counter()
+            for a in self.mdp.getPossibleActions(s):
+                qValues[a] = self.computeQValueFromValues(s, a)
+            self.values[s] = qValues[qValues.argMax()]
 
-                pQValues = self.computeQValues(p)
-                maxQValue = pQValues[pQValues.argMax()]
-                diff = abs(self.values[p] - maxQValue)
-
+            for p in predecessors[s]:
+                qValues = util.Counter()
+                for a in self.mdp.getPossibleActions(p):
+                    qValues[a] = self.computeQValueFromValues(p, a)
+                diff = abs(self.values[p] - qValues[qValues.argMax()])
                 if diff > self.theta:
-                    pq.update(p, -diff)
+                    priorityQueue.update(p, -diff)
