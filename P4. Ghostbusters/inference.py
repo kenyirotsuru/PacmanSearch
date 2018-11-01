@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -75,7 +75,11 @@ class DiscreteDistribution(dict):
         {}
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+
+        sum = self.total()
+        if sum != 0:
+            for key,value in self.items():
+                self[key] = value/sum
 
     def sample(self):
         """
@@ -99,8 +103,13 @@ class DiscreteDistribution(dict):
         0.0
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-
+        randomNum = random.random()
+        sum = self.total()
+        prob = 0
+        for key,value in self.items():
+            prob = prob + value/sum
+            if randomNum <= prob:
+                return key
 
 class InferenceModule:
     """
@@ -169,7 +178,19 @@ class InferenceModule:
         Return the probability P(noisyDistance | pacmanPosition, ghostPosition).
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        #print('  ')
+        #print('ghost pos: ', ghostPosition)
+        #print('jail pos: ', jailPosition)
+        #print('distance reading: ', noisyDistance)
+
+        if ghostPosition == jailPosition and noisyDistance is None:
+            return 1
+        elif ghostPosition == jailPosition or noisyDistance is None:
+            return 0
+        else:
+            trueDistance = manhattanDistance(pacmanPosition, ghostPosition)
+            prob = busters.getObservationProbability(noisyDistance, trueDistance)
+            return prob
 
     def setGhostPosition(self, gameState, ghostPosition, index):
         """
@@ -277,8 +298,10 @@ class ExactInference(InferenceModule):
         position is known.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
 
+        for position in self.allPositions:
+            pastBelief = self.beliefs[position]
+            self.beliefs[position] = self.getObservationProb(observation, gameState.getPacmanPosition(), position, self.getJailPosition())*(pastBelief)
         self.beliefs.normalize()
 
     def elapseTime(self, gameState):
@@ -291,7 +314,16 @@ class ExactInference(InferenceModule):
         current position is known.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+
+        newBeliefs = self.beliefs.copy()
+        for position in self.allPositions:
+            newBeliefs[position] = 0
+
+        for position in self.allPositions:
+            newPosDist = self.getPositionDistribution(gameState, position)
+            for newPos,prob in newPosDist.items():
+                newBeliefs[newPos] += prob*self.beliefs[position]
+        self.beliefs = newBeliefs
 
     def getBeliefDistribution(self):
         return self.beliefs
@@ -348,7 +380,7 @@ class ParticleFilter(InferenceModule):
         Return the agent's current belief state, a distribution over ghost
         locations conditioned on all evidence and time passage. This method
         essentially converts a list of particles into a belief distribution.
-        
+
         This function should return a normalized distribution.
         """
         "*** YOUR CODE HERE ***"
