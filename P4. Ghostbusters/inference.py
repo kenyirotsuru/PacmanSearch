@@ -19,7 +19,6 @@ import game
 
 from util import manhattanDistance, raiseNotDefined
 
-
 class DiscreteDistribution(dict):
     """
     A DiscreteDistribution models belief distributions and weight distributions
