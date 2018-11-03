@@ -144,7 +144,7 @@ class GreedyBustersAgent(BustersAgent):
             [beliefs for i, beliefs in enumerate(self.ghostBeliefs)
              if livingGhosts[i+1]]
         "*** YOUR CODE HERE ***"
-
+        
         closestGhost = None
         distances = util.Counter()
         ghostDistance = 0
