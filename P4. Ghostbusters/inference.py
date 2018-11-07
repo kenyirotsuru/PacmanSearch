@@ -490,17 +490,16 @@ class JointParticleFilter(ParticleFilter):
         weight = DiscreteDistribution()
         pacmanPosition = gameState.getPacmanPosition()
 
-        for particle in range(self.numParticles):
+        for particle in self.particles:
             temp = 1
             for i in range(self.numGhosts):
-                temp *= self.getObservationProb(observation[i], pacmanPosition, self.particles[particle][i], self.getJailPosition(i))
-            weight[particle] = temp
+                temp *= self.getObservationProb(observation[i], pacmanPosition, particle[i], self.getJailPosition(i))
+            weight[particle] += temp
 
         if weight.total() != 0:
             weight.normalize()
             for particle in range(self.numParticles):
-                for i in range(self.numGhosts):
-                    self.particles[particle][i] = self.particles[weight.sample()][i]
+                self.particles[particle] = weight.sample()
         else:
             self.initializeUniformly(gameState)
 
@@ -515,7 +514,10 @@ class JointParticleFilter(ParticleFilter):
 
             # now loop through and update each entry in newParticle...
             "*** YOUR CODE HERE ***"
-            raiseNotDefined()
+
+            for i in range(self.numGhosts):
+                newPosDist = self.getPositionDistribution(gameState, oldParticle, i, self.ghostAgents[i])
+                newParticle[i] = newPosDist.sample()
 
             """*** END YOUR CODE HERE ***"""
             newParticles.append(tuple(newParticle))
