@@ -181,10 +181,6 @@ class InferenceModule:
         Return the probability P(noisyDistance | pacmanPosition, ghostPosition).
         """
         "*** YOUR CODE HERE ***"
-        #print('  ')
-        #print('ghost pos: ', ghostPosition)
-        #print('jail pos: ', jailPosition)
-        #print('distance reading: ', noisyDistance)
 
         if ghostPosition == jailPosition and noisyDistance is None:
             return 1
@@ -415,7 +411,7 @@ class ParticleFilter(InferenceModule):
         "*** YOUR CODE HERE ***"
         dist = DiscreteDistribution()
 
-        for i in range(0,len(self.particles)-1):
+        for i in range(len(self.particles)):
             dist[self.particles[i]] += 1
 
         dist.normalize()
@@ -447,7 +443,18 @@ class JointParticleFilter(ParticleFilter):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        p = self.numParticles
+        permutations = itertools.product(self.legalPositions, repeat=self.numGhosts)
+        positions = list(permutations)
+        random.shuffle(positions)
+
+        j = 0
+        for i in range(self.numParticles):
+            self.particles.append(positions[j])
+            if j == len(positions)-1:
+                j = 0
+            else:
+                j += 1
 
     def addGhostAgent(self, agent):
         """
@@ -480,7 +487,22 @@ class JointParticleFilter(ParticleFilter):
         the DiscreteDistribution may be useful.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        weight = DiscreteDistribution()
+        pacmanPosition = gameState.getPacmanPosition()
+
+        for particle in range(self.numParticles):
+            temp = 1
+            for i in range(self.numGhosts):
+                temp *= self.getObservationProb(observation[i], pacmanPosition, self.particles[particle][i], self.getJailPosition(i))
+            weight[particle] = temp
+
+        if weight.total() != 0:
+            weight.normalize()
+            for particle in range(self.numParticles):
+                for i in range(self.numGhosts):
+                    self.particles[particle][i] = self.particles[weight.sample()][i]
+        else:
+            self.initializeUniformly(gameState)
 
     def elapseTime(self, gameState):
         """
