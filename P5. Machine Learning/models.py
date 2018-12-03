@@ -26,7 +26,7 @@ class PerceptronModel(object):
             x: a node with shape (1 x dimensions)
         Returns: a node containing a single number (the score)
         """
-        "*** YOUR CODE HERE ***"
+        return nn.DotProduct(x, self.w)
 
     def get_prediction(self, x):
         """
@@ -34,13 +34,28 @@ class PerceptronModel(object):
 
         Returns: 1 or -1
         """
-        "*** YOUR CODE HERE ***"
+        product = nn.as_scalar(nn.DotProduct(x, self.w))
+        if product >= 0:
+            return 1
+        else:
+            return -1
 
     def train(self, dataset):
         """
         Train the perceptron until convergence.
         """
-        "*** YOUR CODE HERE ***"
+
+        error_count = 1
+        batch_size = 1
+        while error_count > 0:
+            error_count = 0
+            for x,y in dataset.iterate_once(batch_size):
+                parameter = self.w
+                prediction = self.get_prediction(x)
+                if prediction != nn.as_scalar(y):
+                    parameter.update(x, nn.as_scalar(y))
+                    error_count += 1
+
 
 class RegressionModel(object):
     """
@@ -50,7 +65,14 @@ class RegressionModel(object):
     """
     def __init__(self):
         # Initialize your model parameters here
-        "*** YOUR CODE HERE ***"
+        self.batch_size = 100
+        self.learning_rate = -0.02
+        self.w1 = nn.Parameter(1, 150)
+        self.w2 = nn.Parameter(150, 150)
+        self.w3 = nn.Parameter(150, 1)
+        self.b1 = nn.Parameter(1, 150)
+        self.b2 = nn.Parameter(1, 150)
+        self.b3 = nn.Parameter(1, 1)
 
     def run(self, x):
         """
@@ -61,7 +83,14 @@ class RegressionModel(object):
         Returns:
             A node with shape (batch_size x 1) containing predicted y-values
         """
-        "*** YOUR CODE HERE ***"
+        #print(x)
+        layer1 = nn.AddBias(nn.Linear(x, self.w1), self.b1)
+        #print('Layer 1 ', layer1)
+        layer2 = nn.AddBias(nn.Linear(nn.ReLU(layer1), self.w2), self.b2)
+        #print('Layer 2 ', layer2)
+        predicted_y = nn.AddBias(nn.Linear(nn.ReLU(layer2), self.w3), self.b3)
+        return predicted_y
+
 
     def get_loss(self, x, y):
         """
@@ -73,13 +102,28 @@ class RegressionModel(object):
                 to be used for training
         Returns: a loss node
         """
-        "*** YOUR CODE HERE ***"
+        loss = nn.SquareLoss(self.run(x), y)
+        return loss
 
     def train(self, dataset):
         """
         Trains the model.
         """
-        "*** YOUR CODE HERE ***"
+        for x,y in dataset.iterate_forever(self.batch_size):
+            loss = self.get_loss(x, y)
+            #print(nn.as_scalar(loss))
+            if nn.as_scalar(loss) > 0.015:
+                grad_wrt_w1, grad_wrt_b1, grad_wrt_w2, grad_wrt_b2, grad_wrt_w3, grad_wrt_b3 = nn.gradients(loss, [self.w1, self.b1, self.w2, self.b2, self.w3, self.b3])
+                self.w1.update(grad_wrt_w1, self.learning_rate)
+                self.b1.update(grad_wrt_b1, self.learning_rate)
+                self.w2.update(grad_wrt_w2, self.learning_rate)
+                self.b2.update(grad_wrt_b2, self.learning_rate)
+                self.w3.update(grad_wrt_w3, self.learning_rate)
+                self.b3.update(grad_wrt_b3, self.learning_rate)
+            else:
+                print('Exit ', nn.as_scalar(loss))
+                break
+
 
 class DigitClassificationModel(object):
     """
@@ -97,7 +141,16 @@ class DigitClassificationModel(object):
     """
     def __init__(self):
         # Initialize your model parameters here
-        "*** YOUR CODE HERE ***"
+        self.batch_size = 100
+        self.learning_rate = -0.2
+        self.w1 = nn.Parameter(784, 80)
+        self.w2 = nn.Parameter(80, 90)
+        self.w3 = nn.Parameter(90, 10)
+        #self.w4 = nn.Parameter(200, 10)
+        self.b1 = nn.Parameter(1, 80)
+        self.b2 = nn.Parameter(1, 90)
+        self.b3 = nn.Parameter(1, 10)
+        #self.b4 = nn.Parameter(1, 10)
 
     def run(self, x):
         """
@@ -113,7 +166,12 @@ class DigitClassificationModel(object):
             A node with shape (batch_size x 10) containing predicted scores
                 (also called logits)
         """
-        "*** YOUR CODE HERE ***"
+        #print(x)
+        layer1 = nn.AddBias(nn.Linear(x, self.w1), self.b1)
+        layer2 = nn.AddBias(nn.Linear(nn.ReLU(layer1), self.w2), self.b2)
+        predicted_y = nn.AddBias(nn.Linear(nn.ReLU(layer2), self.w3), self.b3)
+        #predicted_y = nn.AddBias(nn.Linear(nn.ReLU(layer3), self.w4), self.b4)
+        return predicted_y
 
     def get_loss(self, x, y):
         """
@@ -128,13 +186,28 @@ class DigitClassificationModel(object):
             y: a node with shape (batch_size x 10)
         Returns: a loss node
         """
-        "*** YOUR CODE HERE ***"
+        loss = nn.SoftmaxLoss(self.run(x), y)
+        return loss
 
     def train(self, dataset):
         """
         Trains the model.
         """
-        "*** YOUR CODE HERE ***"
+        for x,y in dataset.iterate_forever(self.batch_size):
+            loss = self.get_loss(x, y)
+            #print(nn.as_scalar(loss))
+            if dataset.get_validation_accuracy() < 0.973:
+                grad_wrt_w1, grad_wrt_b1, grad_wrt_w2, grad_wrt_b2, grad_wrt_w3, grad_wrt_b3 = nn.gradients(loss, [self.w1, self.b1, self.w2, self.b2, self.w3, self.b3])
+                self.w1.update(grad_wrt_w1, self.learning_rate)
+                self.b1.update(grad_wrt_b1, self.learning_rate)
+                self.w2.update(grad_wrt_w2, self.learning_rate)
+                self.b2.update(grad_wrt_b2, self.learning_rate)
+                self.w3.update(grad_wrt_w3, self.learning_rate)
+                self.b3.update(grad_wrt_b3, self.learning_rate)
+            else:
+                print('Exit ', nn.as_scalar(loss))
+                break
+
 
 class LanguageIDModel(object):
     """
@@ -153,7 +226,16 @@ class LanguageIDModel(object):
         self.languages = ["English", "Spanish", "Finnish", "Dutch", "Polish"]
 
         # Initialize your model parameters here
-        "*** YOUR CODE HERE ***"
+        self.batch_size = 150
+        self.learning_rate = -0.17
+        self.hidden_size = 300
+        self.w1 = nn.Parameter(self.num_chars, self.hidden_size)
+        self.w2 = nn.Parameter(self.hidden_size, 5)
+        self.b1 = nn.Parameter(1, self.hidden_size)
+        self.b2 = nn.Parameter(1, 5)
+        self.w_hidden = nn.Parameter(5, self.hidden_size)
+        #self.w3 = nn.Parameter(150, 1)
+        #self.b3 = nn.Parameter(1, 1)
 
     def run(self, xs):
         """
@@ -184,7 +266,14 @@ class LanguageIDModel(object):
             A node with shape (batch_size x 5) containing predicted scores
                 (also called logits)
         """
-        "*** YOUR CODE HERE ***"
+        for i in range(len(xs)):
+            if i == 0:
+                z = nn.ReLU(nn.AddBias(nn.Linear(xs[i], self.w1), self.b1))
+                h = nn.AddBias(nn.Linear(z, self.w2), self.b2)
+            else:
+                z = nn.Add(nn.Linear(xs[i], self.w1), nn.Linear(h, self.w_hidden))
+                h = nn.AddBias(nn.Linear(nn.ReLU(nn.AddBias(z, self.b1)), self.w2), self.b2)
+        return h
 
     def get_loss(self, xs, y):
         """
@@ -201,9 +290,23 @@ class LanguageIDModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        loss = nn.SoftmaxLoss(self.run(xs), y)
+        return loss
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        for x,y in dataset.iterate_forever(self.batch_size):
+            loss = self.get_loss(x, y)
+            #print(nn.as_scalar(loss))
+            if dataset.get_validation_accuracy() < 0.85:
+                grad_wrt_w1, grad_wrt_b1, grad_wrt_w2, grad_wrt_b2 = nn.gradients(loss, [self.w1, self.b1, self.w2, self.b2])
+                self.w1.update(grad_wrt_w1, self.learning_rate)
+                self.b1.update(grad_wrt_b1, self.learning_rate)
+                self.w2.update(grad_wrt_w2, self.learning_rate)
+                self.b2.update(grad_wrt_b2, self.learning_rate)
+            else:
+                print('Exit ', nn.as_scalar(loss))
+                break
